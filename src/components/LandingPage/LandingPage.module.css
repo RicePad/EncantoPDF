@@ -1,0 +1,225 @@
+/* YourComponent.css */
+
+/* Hero Section */
+.sectionBackground {
+    background-color: #062427;
+    padding: 80px 0;
+  }
+  
+  .section-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: #fff; /* Assuming white text color, adjust as needed */
+  }
+  
+  
+  .leftContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 32px;
+    gap: 12px;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .headerText {
+    max-width: 28rem;       
+    font-size: 2.25rem;
+    line-height: 1.25;
+    color: #ffffff
+  }
+  
+  .typewriterText {
+    font-size: 1.875rem;
+    font-weight: 300;
+    color: #ff9900;
+  }
+  
+  .descriptionText {
+    max-width: 28rem;
+    font-size: 1rem;
+    line-height: 1.75;
+    opacity: 0.8;
+    color: #ffffff; /* Set your desired color */
+  }
+  
+  /* CTA Section */
+  .ctaButton {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .customersContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 1.5rem;
+  }
+  
+  .customerImage {
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-right: 0.25rem;
+    object-fit: cover;
+    border-radius: 9999px;
+    border-width: 2px;
+    border-color: #00cc66;
+  }
+  
+  .customersText {
+    margin-left: 0.5rem;
+    margin-right: 0.25rem;
+    font-size: 0.875rem;
+    color: #778899;
+  }
+  
+  .rightContainer {
+    width: 50%;
+  }
+  
+  /* Features Section */
+  .featureContainer {
+    text-align: center;
+    padding: 80px 0;
+  }
+  
+  .featureHeader {
+    text-align: center;
+    font-size: 2.25rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+  
+  .featureItem {
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .featureImage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  
+  .featureText {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+  
+  /* CTA Section */
+  .ctaContainer {
+    text-align: center;
+    padding: 80px 0;
+  }
+  
+  .ctaHeader {
+    font-weight: 600;
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .ctaText {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 1rem;
+  }
+  
+  /* Footer Section */
+  .footerContainer {
+    background-color: #f8f5ee;
+    padding: 3rem 0;
+  }
+  
+  .footerRow {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: start;
+    margin-bottom: 1.5rem;
+    margin-right: 20px;
+  }
+  
+  .logoIcon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.75rem;
+  }
+  
+  .logoText {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  
+  .footerLinks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+  
+  .footerLinkSection {
+    margin-bottom: 1.5rem;
+  }
+  
+  .footerLinkHeader {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .footerLinkList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .footerLink {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-decoration: none;
+  }
+  
+  .footerSocialIcons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .socialIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: #1a1a1a;
+  }
+  
+  /* Copyright Section */
+  .copyRightText {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 2rem;
+  }
+  
+  /* Media Queries */
+  @media (min-width: 768px) {
+    .section-container {
+        flex-direction: row;
+        align-items: center;
+      }
+
+    .rightContainer {
+      width: 50%;
+    }
+  
+    .featureContainer {
+      padding: 80px 0;
+    }
+  
+    .ctaContainer {
+      padding: 80px 0;
+    }
+  }
+  
