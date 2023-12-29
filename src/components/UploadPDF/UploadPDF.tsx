@@ -1,5 +1,7 @@
 "use client";
 
+import Decoration from '@/components/Decoration'
+import BigCountNumber from '../BigCountNumber';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,10 +22,13 @@ const UploadPDF = () => {
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string>("");
   const [isButtonEnbaled, setIsButtonEnabled] = useState(false);
+  const [count, setCount] = useState(0);
+
 
   const [open, setOpen] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    console.log('onDrop render');
     // Do something with the files
     const pdfFile = acceptedFiles[0];
 
@@ -51,11 +56,6 @@ const UploadPDF = () => {
   });
 
 
-  let rootProps = getRootProps();
-  console.log('rootProps: ', rootProps);
-
-  let inputProps = getInputProps();
-  console.log('inputProps: ', inputProps)
 
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +95,11 @@ const UploadPDF = () => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenDialog}>
+      <Decoration/>
+      <BigCountNumber count={count} />
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
       <DialogTrigger asChild>
         <Button variant="orange">
           <Upload className="w-4 h-4 mr-2" style={{ strokeWidth: "3" }} />
