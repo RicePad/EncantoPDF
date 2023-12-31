@@ -19,7 +19,7 @@ const Documents = () => {
       <div className="section-container">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl">Documents</h1>
-          <UploadPDF />
+            <UploadPDF />
         </div>
 
         <div className="bg-white rounded shadow w-full overflow-x-scroll">

@@ -95,8 +95,8 @@ const UploadPDF = () => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenDialog}>
-      <Decoration/>
-      <BigCountNumber count={count} />
+      {/* <Decoration/>
+      <BigCountNumber count={count} /> */}
       <button onClick={() => setCount(count + 1)}>
         Increment
       </button>
