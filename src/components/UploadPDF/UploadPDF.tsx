@@ -18,6 +18,7 @@ import { Upload, UploadCloud, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { generatePreSignedURL } from '@/actions/s3';
+import { getPDFFileNameFromURL } from '@/lib/utils';
 
 const UploadPDF = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -86,31 +87,70 @@ const UploadPDF = () => {
 
 
     try {
-           // Handle form submission here.
-    if (file) {
-      //generate pre-signed url from S3 using server actions
-     
-     console.log('File uploaded:', file);
-      const {putUrl, fileKey} = await generatePreSignedURL(file.name, file.type);
-      // Handle file upload
-      console.log("presigned URL: ", putUrl);
-      console.log("File key: ", fileKey);
+      // Handle form submission here.
+      if (file) {
+        //generate pre-signed url from S3 using server actions
 
-   
-     //Upload PDF file from client brwowser to S3
-    } else if (url) {
-      // Handle URL input
-      console.log("URL provided: ", url);
-    }
-    } catch(error) {
+        console.log('File uploaded:', file);
+        const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type);
+        // Handle file upload
+        console.log("presigned URL: ", putUrl);
+        console.log("File key: ", fileKey);
+
+
+        //Upload PDF file from client brwowser to S3
+        uploadPDFToS3(file, putUrl);
+
+        
+      } else if (url) {
+        // Handle URL input
+        const proxyUrl = `https://corsproxy.io/?${url}`;
+        const response = await fetch(proxyUrl);
+
+        const fileName =  getPDFFileNameFromURL(url);
+        const fileSize = Number(response.headers.get("Content-Length"));
+        const fileType = response.headers.get("Content-Length");
+
+        console.log(fileSize);
+        console.log(fileType);
+
+        if(!fileName || fileType !== "application/pdf"){
+          throw new Error("Incorrect File Format");
+        }
+
+        const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType);
+        console.log("Pre-signed URL: ", putUrl);
+        console.log("File Key: ", fileKey);
+
+        const blob = await response.blob();
+        await uploadPDFToS3(blob, putUrl);
+
+      }
+    } catch (error) {
       alert(error);
 
     } finally {
       resetForm()
     }
 
- 
+
   };
+
+
+  const uploadPDFToS3 = async (file: File | Blob, putUrl: string) => {
+    const uploadResponse = await fetch(putUrl,
+      {
+        body: file,
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/pdf",
+        },
+      }
+    )
+
+    console.log('UPLOAD RESPONSE: ', uploadResponse);
+  }
+
 
   return (
     <Dialog open={open} onOpenChange={handleOpenDialog}>
