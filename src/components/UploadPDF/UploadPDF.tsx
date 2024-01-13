@@ -1,5 +1,6 @@
 "use client";
 
+
 import Decoration from '@/components/Decoration'
 import BigCountNumber from '../BigCountNumber';
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, UploadCloud, X } from "lucide-react";
+import {Loader2, Upload, UploadCloud, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { generatePreSignedURL } from '@/actions/s3';
-import { getPDFFileNameFromURL } from '@/lib/utils';
+import { getPDFFileNameFromURL, showToast } from '@/lib/utils';
 
 const UploadPDF = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -28,6 +29,7 @@ const UploadPDF = () => {
 
 
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     // console.log('onDrop render');
@@ -35,17 +37,19 @@ const UploadPDF = () => {
     const pdfFile = acceptedFiles[0];
 
     if (!pdfFile) {
-      alert("Please upload only PDF file.");
+      //alert("Please upload only PDF file.");
+      showToast("Please upload only PDF file.");
       return;
     }
 
     if (pdfFile.size > 10 * 1024 * 1024) {
       // bigger than 10Mb
-      alert("Max file size: 10Mb");
-      return;
+     // alert("Max file size: 10Mb");
+     showToast("Max file size: 10Mb.");
+     return;
     }
 
-    // console.log(pdfFile);
+    // console.log(pdfFsile);
     setFile(pdfFile);
     setUrl("");
     setIsButtonEnabled(true);
@@ -87,6 +91,7 @@ const UploadPDF = () => {
 
 
     try {
+      setIsLoading(true);
       // Handle form submission here.
       if (file) {
         //generate pre-signed url from S3 using server actions
@@ -103,16 +108,24 @@ const UploadPDF = () => {
 
         
       } else if (url) {
+        console.log('inside url block', url);
+
         // Handle URL input
         const proxyUrl = `https://corsproxy.io/?${url}`;
         const response = await fetch(proxyUrl);
 
+      
+        
+        console.log('response: ', response);
+
         const fileName =  getPDFFileNameFromURL(url);
         const fileSize = Number(response.headers.get("Content-Length"));
-        const fileType = response.headers.get("Content-Length");
+        const fileType = response.headers.get("Content-Type");
 
-        console.log(fileSize);
-        console.log(fileType);
+        console.log('fileName', fileName);
+
+        console.log('fileSize', fileSize);
+        console.log('fileType', fileType);
 
         if(!fileName || fileType !== "application/pdf"){
           throw new Error("Incorrect File Format");
@@ -126,10 +139,12 @@ const UploadPDF = () => {
         await uploadPDFToS3(blob, putUrl);
 
       }
-    } catch (error) {
-      alert(error);
+    } catch (error: any) {
+      //alert(error);
+      showToast(error.message)
 
     } finally {
+      setIsLoading(false);
       resetForm()
     }
 
@@ -222,8 +237,19 @@ const UploadPDF = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button type="submit" variant="orange" disabled={!isButtonEnbaled}>
-              Upload
+            <Button
+              type="submit"
+              variant="orange"
+              disabled={!isButtonEnbaled || isLoading}
+            >
+              {isLoading ? (
+                <Loader2
+                  className="h-5 w-5 text-white/80 animate-spin"
+                  style={{ strokeWidth: "3" }}
+                />
+              ) : (
+                `Upload`
+              )}
             </Button>
             <DialogTrigger asChild>
               <Button variant="light">Cancel</Button>
