@@ -20,6 +20,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { generatePreSignedURL } from '@/actions/s3';
 import { getPDFFileNameFromURL, showToast } from '@/lib/utils';
+import { embedPDFToPinecone } from '@/actions/pinecone';
 
 const UploadPDF = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -103,8 +104,12 @@ const UploadPDF = () => {
         console.log("File key: ", fileKey);
 
 
-        //Upload PDF file from client brwowser to S3
-        uploadPDFToS3(file, putUrl);
+         // Step #2: Upload PDF file from client browser to S3
+         await uploadPDFToS3(file, putUrl);
+
+         // Step #3: Extract PDF file's content and save it to Pinecone vector database
+         const embedPDF = await embedPDFToPinecone(fileKey);
+          // console.log('Client Embed PDF', embedPDF);
 
         
       } else if (url) {
@@ -137,6 +142,10 @@ const UploadPDF = () => {
 
         const blob = await response.blob();
         await uploadPDFToS3(blob, putUrl);
+
+        // Step #3: Extract PDF file's content and save it to Pinecone vector database
+        const embedPDF = await embedPDFToPinecone(fileKey);
+        // console.log('Client Embed PDF', embedPDF);
 
       }
     } catch (error: any) {

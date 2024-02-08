@@ -1,25 +1,34 @@
 import UploadPDF from "@/components/UploadPDF";
 import { Button } from "@/components/ui/button";
+import prismadb from "@/lib/prisma";
+import { auth } from "@clerk/nextjs";
 import { File, Pencil, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
+import { formatBytes } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
 
-const Documents = () => {
-  const documents = [
-    { fileName: "User_Manual.pdf", fileSize: "1 MB", createdAt: "yesterday" },
-    { fileName: "Learn_Python.pdf", fileSize: "7 MB", createdAt: "3 days ago" },
-    {
-      fileName: "Google_Financial_Report.pdf",
-      fileSize: "25 MB",
-      createdAt: "4 weeks ago",
+
+const Documents = async () => {
+
+
+  const { userId } = auth();
+
+  const documents = await prismadb.document.findMany({
+    where: {
+      userId: userId as string,
     },
-  ];
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
+  console.log('PRISMA DB: ', documents);
   return (
     <section className="bg-[#faf9f6] min-h-screen">
       <div className="section-container">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl">Documents</h1>
-            <UploadPDF />
+          <UploadPDF />
         </div>
 
         <div className="bg-white rounded shadow w-full overflow-x-scroll">
@@ -46,10 +55,10 @@ const Documents = () => {
                     </Link>
                   </td>
                   <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">
-                    {d.fileSize}
+                    {formatBytes(d.fileSize)}
                   </td>
                   <td className="p-4 text-right text-sm text-gray-500 whitespace-nowrap w-20">
-                    {d.createdAt}
+                  {formatDistanceToNow(d.createdAt, { addSuffix: true })}
                   </td>
                   <td className="p-4 text-right w-4">
                     <Pencil
@@ -65,6 +74,12 @@ const Documents = () => {
                   </td>
                 </tr>
               ))}
+
+              {documents.length === 0 && (
+                <tr>
+                  <td className="p-4 italic">None</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
