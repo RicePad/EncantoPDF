@@ -20,25 +20,19 @@ export const embedPDFToPinecone = async (fileKey: string) => {
         `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_S3_BUCKET_REGION}.amazonaws.com/${fileKey}`
     );
 
-    console.log("PineCone PDF file:", pdfFile);
 
     // Step #1 - Split text into small chunks
 
     let pdfArray = await pdfFile.arrayBuffer();
-    console.log("PDF array:", pdfFile);
 
     const blob = new Blob([pdfArray]);
-    console.log("PineCone blob arrayBuffer:", blob);
 
     const loader = new PDFLoader(blob);
-    console.log("PineCone Loader: ", loader);
 
     const docs = await loader.load();
-    console.log("PineCone doc:", docs);
 
     const trimmedDoc = docs.map((doc) => {
         const metadata = { ...doc.metadata };
-        console.log("metada", metadata);
 
         delete metadata.pdf;
 
@@ -48,7 +42,6 @@ export const embedPDFToPinecone = async (fileKey: string) => {
         });
     });
 
-    console.log("trimmedDocs", trimmedDoc);
 
     // Step #2 - Split document into smaller chunks
     const splitter = new CharacterTextSplitter({
@@ -58,7 +51,6 @@ export const embedPDFToPinecone = async (fileKey: string) => {
     });
 
     const splitDocs = await splitter.splitDocuments(trimmedDoc);
-    console.log("splitDocs", splitDocs);
 
 
     // Step #3 = Initialize Pinecone

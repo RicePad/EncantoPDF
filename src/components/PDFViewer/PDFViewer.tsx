@@ -15,7 +15,11 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import { ReactElement } from "react";
 
-const PDFViewer = () => {
+interface PDFViewerProps {
+  url: string
+}
+
+const PDFViewer = ({url}: PDFViewerProps) => {
   const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
     <Toolbar>
       {(slots: ToolbarSlot) => {
@@ -89,7 +93,7 @@ const PDFViewer = () => {
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
         <Viewer
           plugins={[defaultLayoutPluginInstance]}
-          fileUrl="https://encanto-ai.s3.amazonaws.com/users/user_2aHo77ZRHvLwTGncZ8EeeXeH6LB/1705276432878-HumDivMod8Final.pdf"
+          fileUrl={url}
         />
       </Worker>
     </div>

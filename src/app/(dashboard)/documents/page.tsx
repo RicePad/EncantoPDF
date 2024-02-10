@@ -22,7 +22,6 @@ const Documents = async () => {
     },
   });
 
-  console.log('PRISMA DB: ', documents);
   return (
     <section className="bg-[#faf9f6] min-h-screen">
       <div className="section-container">

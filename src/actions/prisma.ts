@@ -29,3 +29,19 @@ export const createDocument = async (
 
   return { document };
 };
+
+export const getDocument = async (documentId: string) => {
+    const user = await currentUser();
+    if (!user || !user.id || !user.firstName) {
+      throw new Error("Unauthorized!");
+    }
+  
+    const document = await prismadb.document.findUnique({
+      where: {
+        id: documentId,
+        userId: user.id,
+      },
+    });
+  
+    return { document };
+  };

@@ -39,12 +39,10 @@ export const generatePreSignedURL = async (fileName: string, fileType: string) =
         Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
     })
 
-    console.log('putCommand', putCommand);
 
   
 
     const putUrl = await getSignedUrl(client, putCommand, {expiresIn: 60});
 
-    console.log('putURL: ', putUrl);
     return { putUrl, fileKey}
 }
