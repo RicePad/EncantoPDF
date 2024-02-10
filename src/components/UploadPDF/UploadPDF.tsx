@@ -1,8 +1,7 @@
 "use client";
 
-
-import Decoration from '@/components/Decoration'
-import BigCountNumber from '../BigCountNumber';
+import Decoration from "@/components/Decoration";
+import BigCountNumber from "../BigCountNumber";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,12 +14,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {Loader2, Upload, UploadCloud, X } from "lucide-react";
+import { Loader2, Upload, UploadCloud, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { generatePreSignedURL } from '@/actions/s3';
-import { getPDFFileNameFromURL, showToast } from '@/lib/utils';
-import { embedPDFToPinecone } from '@/actions/pinecone';
+import { generatePreSignedURL } from "@/actions/s3";
+import { getPDFFileNameFromURL, showToast } from "@/lib/utils";
+import { embedPDFToPinecone } from "@/actions/pinecone";
+import { createDocument } from "@/actions/prisma";
+import { useRouter } from "next/navigation";
 
 const UploadPDF = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -28,12 +29,11 @@ const UploadPDF = () => {
   const [isButtonEnbaled, setIsButtonEnabled] = useState(false);
   const [count, setCount] = useState(0);
 
-
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const router = useRouter();
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // console.log('onDrop render');
     // Do something with the files
     const pdfFile = acceptedFiles[0];
 
@@ -45,12 +45,11 @@ const UploadPDF = () => {
 
     if (pdfFile.size > 10 * 1024 * 1024) {
       // bigger than 10Mb
-     // alert("Max file size: 10Mb");
-     showToast("Max file size: 10Mb.");
-     return;
+      // alert("Max file size: 10Mb");
+      showToast("Max file size: 10Mb.");
+      return;
     }
 
-    // console.log(pdfFsile);
     setFile(pdfFile);
     setUrl("");
     setIsButtonEnabled(true);
@@ -61,9 +60,6 @@ const UploadPDF = () => {
     multiple: false,
     onDrop,
   });
-
-
-
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
@@ -90,99 +86,92 @@ const UploadPDF = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-
     try {
       setIsLoading(true);
       // Handle form submission here.
       if (file) {
-        //generate pre-signed url from S3 using server actions
 
-        console.log('File uploaded:', file);
-        const { putUrl, fileKey } = await generatePreSignedURL(file.name, file.type);
-        // Handle file upload
-        console.log("presigned URL: ", putUrl);
-        console.log("File key: ", fileKey);
+        await processPDF(file, file.name, file.size, file.type)
 
-
-         // Step #2: Upload PDF file from client browser to S3
-         await uploadPDFToS3(file, putUrl);
-
-         // Step #3: Extract PDF file's content and save it to Pinecone vector database
-         const embedPDF = await embedPDFToPinecone(fileKey);
-          // console.log('Client Embed PDF', embedPDF);
-
-        
       } else if (url) {
-        console.log('inside url block', url);
 
         // Handle URL input
         const proxyUrl = `https://corsproxy.io/?${url}`;
         const response = await fetch(proxyUrl);
 
-      
-        
-        console.log('response: ', response);
 
-        const fileName =  getPDFFileNameFromURL(url);
+        const fileName = getPDFFileNameFromURL(url);
         const fileSize = Number(response.headers.get("Content-Length"));
         const fileType = response.headers.get("Content-Type");
 
-        console.log('fileName', fileName);
 
-        console.log('fileSize', fileSize);
-        console.log('fileType', fileType);
-
-        if(!fileName || fileType !== "application/pdf"){
+        if (!fileName || fileType !== "application/pdf") {
           throw new Error("Incorrect File Format");
         }
 
-        const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType);
-        console.log("Pre-signed URL: ", putUrl);
-        console.log("File Key: ", fileKey);
+        const { putUrl, fileKey } = await generatePreSignedURL(
+          fileName,
+          fileType
+        );
+
 
         const blob = await response.blob();
         await uploadPDFToS3(blob, putUrl);
 
         // Step #3: Extract PDF file's content and save it to Pinecone vector database
-        const embedPDF = await embedPDFToPinecone(fileKey);
-        // console.log('Client Embed PDF', embedPDF);
-
+        await embedPDFToPinecone(fileKey);
       }
     } catch (error: any) {
       //alert(error);
-      showToast(error.message)
-
+      showToast(error.message);
     } finally {
       setIsLoading(false);
-      resetForm()
+      resetForm();
     }
-
-
   };
 
+  const processPDF = async (
+    file: File | Blob,
+    fileName: string,
+    fileSize: number,
+    fileType: string
+  ) => {
+    // Step #1: Generate pre-signed URL from S3 using Server Actions
+    const { putUrl, fileKey } = await generatePreSignedURL(fileName, fileType);
+
+
+
+    // Step #2: Upload PDF file from client browser to S3
+    await uploadPDFToS3(file, putUrl);
+
+    // Step #3: Extract PDF file's content and save it to Pinecone vector database
+    await embedPDFToPinecone(fileKey);
+
+    // Step #4: Create a new document in database
+    const { document } = await createDocument(fileName, fileSize, fileKey);
+
+    // Step #5: Redirect user to Chat page
+    if (document) {
+      router.push(`/documents/${document.id}`);
+    }
+  };
 
   const uploadPDFToS3 = async (file: File | Blob, putUrl: string) => {
-    const uploadResponse = await fetch(putUrl,
-      {
-        body: file,
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/pdf",
-        },
-      }
-    )
+    const uploadResponse = await fetch(putUrl, {
+      body: file,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/pdf",
+      },
+    });
 
-    console.log('UPLOAD RESPONSE: ', uploadResponse);
-  }
-
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenDialog}>
       {/* <Decoration/>
       <BigCountNumber count={count} /> */}
-      <button onClick={() => setCount(count + 1)}>
-        Increment
-      </button>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
       <DialogTrigger asChild>
         <Button variant="orange">
           <Upload className="w-4 h-4 mr-2" style={{ strokeWidth: "3" }} />

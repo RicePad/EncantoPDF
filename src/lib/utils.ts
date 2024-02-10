@@ -11,15 +11,11 @@ export function getPDFFileNameFromURL(url: string) {
   const matches = url.match(/\/([^/?#]+)[^/]*$/);
 
   if (matches && matches.length > 1) {
-    //console.log('matches: ', matches);
     const fileNameWithExtension = matches[1];
-    //console.log('fileNameWithExtension: ', fileNameWithExtension);
 
     const fileExtension = fileNameWithExtension.split(".").pop();
-    //console.log('filExtension: ', fileExtensison);
 
     if (fileExtension?.toLowerCase() === "pdf") {
-      console.log("getPDFFileNameFromUrl:", fileExtension);
       return fileNameWithExtension;
     }
   }
@@ -28,7 +24,6 @@ export function getPDFFileNameFromURL(url: string) {
 }
 
 export function showToast(message: string) {
-  console.log("react tostify");
   toast(message, {
     position: toast.POSITION.TOP_RIGHT,
     autoClose: 5000,
