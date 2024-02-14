@@ -10,7 +10,6 @@ interface Props {
 }
 const ChatPage = async ({ params: { id }}: Props) => {
    
-  console.log('JF', id);
   const { document } = await getDocument(id);
 
 

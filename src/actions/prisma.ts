@@ -5,43 +5,68 @@ import prismadb from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export const createDocument = async (
-  fileName: string,
-  fileSize: number,
-  fileKey: string
+    fileName: string,
+    fileSize: number,
+    fileKey: string
 ) => {
-  const user = await currentUser();
+    const user = await currentUser();
 
-  if (!user || !user.id || !user.firstName) {
-    throw new Error("Unauthorized");
-  }
+    if (!user || !user.id || !user.firstName) {
+        throw new Error("Unauthorized");
+    }
 
-  const document = await prismadb.document.create({
-    data: {
-      userId: user.id,
-      userName: user.firstName,
-      fileName,
-      fileSize,
-      fileKey,
-    },
-  });
+    const document = await prismadb.document.create({
+        data: {
+            userId: user.id,
+            userName: user.firstName,
+            fileName,
+            fileSize,
+            fileKey,
+        },
+    });
 
-  revalidatePath("/documents");
+    revalidatePath("/documents");
 
-  return { document };
+    return { document };
 };
 
 export const getDocument = async (documentId: string) => {
     const user = await currentUser();
     if (!user || !user.id || !user.firstName) {
-      throw new Error("Unauthorized!");
+        throw new Error("Unauthorized!");
     }
-  
+
     const document = await prismadb.document.findUnique({
-      where: {
-        id: documentId,
-        userId: user.id,
-      },
+        where: {
+            id: documentId,
+            userId: user.id,
+        },
     });
-  
+
     return { document };
-  };
+};
+
+
+
+const uploadDocument = async (documentId: string, formData: FormData) => {
+
+    const user = await currentUser();
+    if (!user || !user.id || user.firstName) {
+        throw new Error("Unauthorized");
+    }
+
+    const fileName = formData.get("documenttName") as string;
+
+    const document = await prismadb.document.update({
+        where: {
+            id: documentId,
+            userId: user.id,
+        },
+        data: {
+            fileName,
+        },
+    });
+
+
+    revalidatePath("/documents");
+};
