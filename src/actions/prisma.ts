@@ -48,25 +48,28 @@ export const getDocument = async (documentId: string) => {
 
 
 
-const uploadDocument = async (documentId: string, formData: FormData) => {
+export const updateDocument = async (documentId: string, formData: FormData) => {
 
     const user = await currentUser();
-    if (!user || !user.id || user.firstName) {
+    if (!user || !user.id || !user.firstName) {
         throw new Error("Unauthorized");
     }
 
-    const fileName = formData.get("documenttName") as string;
+    const fileName = formData.get("documentName") as string;
 
+    
+    
     const document = await prismadb.document.update({
         where: {
-            id: documentId,
-            userId: user.id,
+          id: documentId,
+          userId: user.id,
         },
         data: {
-            fileName,
+          fileName,
         },
-    });
-
+      });
 
     revalidatePath("/documents");
 };
+
+

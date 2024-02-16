@@ -1,4 +1,5 @@
 import UploadPDF from "@/components/UploadPDF";
+import UpdatePDF from "@/components/UpdatePDF";
 import { Button } from "@/components/ui/button";
 import prismadb from "@/lib/prisma";
 import { auth } from "@clerk/nextjs";
@@ -6,6 +7,7 @@ import { File, Pencil, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
 import { formatBytes } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+
 
 
 const Documents = async () => {
@@ -60,10 +62,7 @@ const Documents = async () => {
                   {formatDistanceToNow(d.createdAt, { addSuffix: true })}
                   </td>
                   <td className="p-4 text-right w-4">
-                    <Pencil
-                      className="w-4 h-4 cursor-pointer"
-                      style={{ strokeWidth: "3" }}
-                    />
+                    <UpdatePDF document={d} />
                   </td>
                   <td className="p-4 text-right w-4">
                     <Trash2
