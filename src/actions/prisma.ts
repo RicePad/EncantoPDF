@@ -1,6 +1,6 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs";
+import { currentUser, useAuth } from "@clerk/nextjs";
 import prismadb from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -71,5 +71,25 @@ export const updateDocument = async (documentId: string, formData: FormData) => 
 
     revalidatePath("/documents");
 };
+
+export const deleteDocument =  async (documentId: string) => {
+    const user =  await currentUser();
+    if (!user || !user.id || !user.firstName){
+        throw new Error("Unauthorized user");
+        
+    }
+
+
+    const document = await prismadb.document.delete(
+        {
+            where: {
+                id: documentId,
+                userId: user.id,
+            },
+        }
+    );
+
+    revalidatePath("/documents");
+}
 
 
