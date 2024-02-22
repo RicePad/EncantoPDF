@@ -64,3 +64,36 @@ export const embedPDFToPinecone = async (fileKey: string) => {
         pineconeIndex: index,
     });
 };
+
+export const deletePineconeNamespace = async (fileKey: string) => {
+    // Authorize users to protect your action
+    const { userId } = auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+  
+    if (!fileKey) {
+      throw new Error("There was a problem with the namespace");
+    }
+  
+    // Step #1. Initialize Pinecone
+    const pinecone = new Pinecone();
+  
+    // Step #2. Connect to the Index
+    const index = pinecone.Index(process.env.PINECONE_INDEX!);
+  
+    // Step #3. Get Vector Store
+    const vectorStore = await PineconeStore.fromExistingIndex(
+      new OpenAIEmbeddings(),
+      {
+        pineconeIndex: index,
+        namespace: fileKey,
+      }
+    );
+  
+    // Step #4. Remove vectors of that namespace
+    await vectorStore.delete({
+      deleteAll: true,
+    });
+  };
+  
