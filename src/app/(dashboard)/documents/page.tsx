@@ -50,7 +50,7 @@ const Documents = async () => {
                       className="w-4 h-4 mr-2"
                       style={{ strokeWidth: "3" }}
                     />
-                    <Link href="#">
+                    <Link href={`/documents/${d.id}`}>
                       <span className="text-ellipsis overflow-hidden whitespace-normal max-w-[300px] text-sm font-medium">
                         {d.fileName}
                       </span>
