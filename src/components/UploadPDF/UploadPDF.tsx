@@ -20,7 +20,7 @@ import { useDropzone } from "react-dropzone";
 import { generatePreSignedURL } from "@/actions/s3";
 import { getPDFFileNameFromURL, showToast } from "@/lib/utils";
 import { embedPDFToPinecone } from "@/actions/pinecone";
-import { createDocument } from "@/actions/prisma";
+import { createDocument } from "@/actions/db";
 import { useRouter } from "next/navigation";
 
 const UploadPDF = () => {

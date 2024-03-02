@@ -36,6 +36,12 @@ export function showToast(message: string) {
   });
 }
 
+export function scrollToBottom(messageEndRef: React.RefObject<HTMLElement>) {
+  if (messageEndRef.current) {
+    messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) return "0 Bytes";
 
