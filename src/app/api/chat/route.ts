@@ -6,6 +6,7 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { CallbackManager } from "langchain/callbacks";
 import { VectorDBQAChain } from "langchain/chains";
+import { Role } from "@prisma/client";
 import prismadb from "@/lib/prisma";
 import { auth } from "@clerk/nextjs";
 
@@ -19,13 +20,11 @@ export async function POST(request: NextRequest) {
   // Extract the messages from the body of the request
   const { messages, fileKey, documentId } = await request.json();
 
-  console.log('JF - fileKey:', fileKey);
-
-  console.log('JF - messages:', messages);
   // Get input query from messages array
   const query = messages[messages.length - 1].content;
 
-  console.log('JF - query:', query);
+  // Create message from user
+  await saveMessage(documentId, "user", query, userId);
 
   // Use Vercel's ai package to setup a stream
   const { stream, handlers } = LangChainStream();
@@ -58,15 +57,40 @@ export async function POST(request: NextRequest) {
     returnSourceDocuments: true,
   });
 
-  console.log('chain', chain);
-
   // Call this chain with the query from the user
   chain
-    .call(
-        { query })
+    .call({ query })
+    .then(async (res) => {
+      if (res) {
+        // Create message for assistant (AI)
+        await saveMessage(documentId, "assistant", res.text, userId);
+      }
+    })
     .catch(console.error);
 
   return new StreamingTextResponse(stream);
 }
 
+async function saveMessage(
+  documentId: string,
+  role: Role,
+  content: string,
+  userId: string
+) {
+  const document = await prismadb.document.update({
+    where: {
+      id: documentId,
+      userId,
+    },
+    data: {
+      messages: {
+        create: {
+          content,
+          role,
+        },
+      },
+    },
+  });
 
+  return document;
+}

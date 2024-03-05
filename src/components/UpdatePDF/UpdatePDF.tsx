@@ -38,7 +38,7 @@ const UpdatePDF = ({ document }: Props) => {
       setIsButtonEnabled(e.target.value !== "");
     }
   };
-
+  
   const updateDocumentWithId = updateDocument.bind(null, document.id);
 
   return (

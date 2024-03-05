@@ -7,10 +7,12 @@ import { Button } from "../ui/button";
 import { cn, scrollToBottom } from "@/lib/utils";
 
 import { Message, useChat } from "ai/react";
-import { Document } from "@prisma/client";
+import { Document, Message as MessageDB } from "@prisma/client";
 
 interface Props {
-  document: Document,
+  document: Document & {
+    messages: MessageDB[];
+  };
 }
 
 const Chat = ({ document }: Props) => {
@@ -19,7 +21,8 @@ const Chat = ({ document }: Props) => {
       body: {
         documentId: document.id,
         fileKey: document.fileKey,
-      }
+      },
+      initialMessages: document.messages,
     });
 
   const messageRef = useRef<HTMLDivElement | null>(null);
