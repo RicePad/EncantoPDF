@@ -1,6 +1,6 @@
 "use client";
 
-import { updateDocument } from "@/actions/prisma";
+import { updateDocument } from "@/actions/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,7 +38,7 @@ const UpdatePDF = ({ document }: Props) => {
       setIsButtonEnabled(e.target.value !== "");
     }
   };
-
+  
   const updateDocumentWithId = updateDocument.bind(null, document.id);
 
   return (

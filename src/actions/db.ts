@@ -38,13 +38,20 @@ export const getDocument = async (documentId: string) => {
 
     const document = await prismadb.document.findUnique({
         where: {
-            id: documentId,
-            userId: user.id,
+          id: documentId,
+          userId: user.id,
         },
-    });
+        include: {
+          messages: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      });
+    
 
     return { document };
 };
+
 
 
 

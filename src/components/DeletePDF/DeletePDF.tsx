@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteDocument, updateDocument } from "@/actions/prisma";
+import { deleteDocument, updateDocument } from "@/actions/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
